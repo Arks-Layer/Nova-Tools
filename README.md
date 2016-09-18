@@ -8,7 +8,7 @@ This tool extracts AIF files (Specifically Phantasy Star: Nova files). This hand
 ##AIF to GXT (aif_to_gxt.py) [Developed by Nagato]
 Converts AIF files to GXT files, for use with GXTConvert.
 
-##GXT Convert (GXTConvert.exe) [Developed by xdaniel - https://twitter.com/xdanieldzd]
+##GXT Convert (GXTConvert.exe) [Developed by [xdaniel](https://twitter.com/xdanieldzd)]
 This converts GXT files to PNG.
 
 ##RMD Parser (parse_script.py)  [Developed by Nagato]
