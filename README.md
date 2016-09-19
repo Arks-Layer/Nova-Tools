@@ -2,23 +2,15 @@
 
 A set of tools to modify the files in Nova, so we can get a translation going!
 
-##AIF Parser (parser_aif.py) [Developed by Nagato]
-This tool extracts AIF files (Specifically Phantasy Star: Nova files). This handles .aifs with multiple images inside, and also different image compressions.
 
 ##AIF to GXT (aif_to_gxt.py) [Developed by Nagato]
 Converts AIF files to GXT files, for use with GXTConvert.
 
-##Font Size Fix Tool (labyrinth_no_kanata_fix_font_size.py) [Developed by Nagato]
-[Documentation needed]
-
 ##GXT Convert (GXTConvert.exe) [Developed by [xdaniel](https://twitter.com/xdanieldzd)]
 This converts GXT files to PNG.
 
-##PNG Files
-These are required to work with the Nova files. Put them in the same directory as the py files.
 
-##RMD Parser (parse_script.py)  [Developed by Nagato]
-This tool outputs a HTML file and PNG file, which are used to view the scripts. It's not possible to output raw text without making a mapping between the various font files.
-
-##Script Insertion Tool (labyrinth_no_kanata_insert_script.py) [Developed by Nagato]
-[Documentation needed]
+##psnova-texteditor [Developed by Nagato]
+Includes two parts: psnova-texteditor and psnova-textinserter.  
+psnova-texteditor is a GUI program that lets you view any .rmd file located in the "scripts" folder in the same folder as the EXE. This tool can also be used to dump all strings into separate PNG files for viewing outside of the application. NOTE: You must also have BasicCharSet.rmd and BasicRubySet.rmd available in the scripts folder for maximum compatibility.    
+psnova-textinserter is a CLI program that uses the translations.json file from psnova-texteditor to generate new .rmd files. The original .rmd files must be located in the "scripts" folder in the same folder as the EXE.
