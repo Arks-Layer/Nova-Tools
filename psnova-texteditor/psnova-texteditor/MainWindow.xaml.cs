@@ -397,6 +397,7 @@ namespace psnova_texteditor
 
                         using (Graphics g = Graphics.FromImage(glyph))
                         {
+                            g.Clear(Color.Black);
                             g.DrawImage(rmd.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
                         }
 
@@ -408,7 +409,7 @@ namespace psnova_texteditor
 
                             var hashStr = BitConverter.ToString(hash).ToLower().Replace("-", ""); // Preferred format
 
-                            if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f") // No glyph
+                            if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f" && hashStr != "f8f73fbb2689a7a5b7bef927fc467a3c4c459159") // No glyph
                             {
                                 if (!glyphDatabase.ContainsKey(hashStr))
                                 {
