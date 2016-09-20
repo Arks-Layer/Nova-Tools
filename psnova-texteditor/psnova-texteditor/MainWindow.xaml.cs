@@ -22,6 +22,13 @@ namespace psnova_texteditor
         public string Base = null;
     }
 
+    class GlyphEntry
+    {
+        public string Filename;
+        public string Text;
+        public List<string> References;
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -32,13 +39,16 @@ namespace psnova_texteditor
         RmdFile basicRubySetRmd = null;
 
         Dictionary<ulong, TranslationEntry> translationDatabase = new Dictionary<ulong, TranslationEntry>();
+        Dictionary<string, GlyphEntry> glyphDatabase = new Dictionary<string, GlyphEntry>();
         const string translationDatbaseFilename = "translations.json";
+        const string glyphDatabaseFilename = "glyphs.json";
 
         public MainWindow()
         {
             InitializeComponent();
 
-            LoadTranslationDatabase(translationDatbaseFilename);
+            translationDatabase = LoadTranslationDatabase(translationDatbaseFilename);
+            glyphDatabase = LoadGlyphDatabase(glyphDatabaseFilename);
 
             var scriptsFolder = "scripts";
 
@@ -63,24 +73,18 @@ namespace psnova_texteditor
             }
         }
 
-        private void LoadTranslationDatabase(string filename)
+        private Dictionary<ulong, TranslationEntry> LoadTranslationDatabase(string filename)
         {
+            Dictionary<ulong, TranslationEntry> output = new Dictionary<ulong, TranslationEntry>();
+
             if (File.Exists(filename))
             {
                 var data = File.ReadAllText(filename);
 
-                if (String.IsNullOrWhiteSpace(data))
+                if (!String.IsNullOrWhiteSpace(data))
                 {
-                    translationDatabase = new Dictionary<ulong, TranslationEntry>();
+                    output = JsonConvert.DeserializeObject<Dictionary<ulong, TranslationEntry>>(data);
                 }
-                else
-                {
-                    translationDatabase = JsonConvert.DeserializeObject<Dictionary<ulong, TranslationEntry>>(data);
-                }
-            }
-            else
-            {
-                translationDatabase = new Dictionary<ulong, TranslationEntry>();
             }
 
             if (currentSelectedScript != null)
@@ -92,11 +96,35 @@ namespace psnova_texteditor
                     TextEditor.Text = translationDatabase[currentSelectedId].Text;
                 }
             }
+
+            return output;
+        }
+
+        private Dictionary<string, GlyphEntry> LoadGlyphDatabase(string filename)
+        {
+            Dictionary<string, GlyphEntry> output = new Dictionary<string, GlyphEntry>();
+
+            if (File.Exists(filename))
+            {
+                var data = File.ReadAllText(filename);
+
+                if (!String.IsNullOrWhiteSpace(data))
+                {
+                    output = JsonConvert.DeserializeObject<Dictionary<string, GlyphEntry>>(data);
+                }
+            }
+
+            return output;
         }
 
         private void SaveTranslationDatabase(string filename)
         {
             File.WriteAllText(filename, JsonConvert.SerializeObject(translationDatabase, Formatting.Indented));
+        }
+
+        private void SaveGlyphDatabase(string filename)
+        {
+            File.WriteAllText(filename, JsonConvert.SerializeObject(glyphDatabase, Formatting.Indented));
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -164,7 +192,7 @@ namespace psnova_texteditor
 
                 currentSelectedId = id;
                 bool hasTranslation = translationDatabase.ContainsKey(currentSelectedId);
-                if (hasTranslation)
+                if (hasTranslation && !(!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text)))
                 {
                     skipTextChanged = true;
                     TextEditor.Text = translationDatabase[currentSelectedId].Text;
@@ -342,24 +370,13 @@ namespace psnova_texteditor
             MessageBox.Show(String.Format("Finished dumping {0} scripts!", dumped));
         }
 
-        class GlyphEntry
-        {
-            public string Filename;
-            public string Text;
-            public List<string> References;
-        }
-
         private void DumpGlyphs_Click(object sender, RoutedEventArgs e)
         {
             // Dump all unique glyphs used in the scripts
-
             const string outputFoldername = "output_glyphs";
-            const string outputGlyphDatabaseFilename = "glyphs.json";
 
             if (!Directory.Exists(outputFoldername))
                 Directory.CreateDirectory(outputFoldername);
-            
-            Dictionary<string, GlyphEntry> glyphs = new Dictionary<string, GlyphEntry>();
 
             int dumped = 0;
             using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
@@ -392,44 +409,104 @@ namespace psnova_texteditor
 
                             var hash = sha1.ComputeHash(s.GetBuffer());
 
-                            var hashStr = BitConverter.ToString(hash).ToLower().Replace("-",""); // Preferred format
+                            var hashStr = BitConverter.ToString(hash).ToLower().Replace("-", ""); // Preferred format
 
                             if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f") // No glyph
                             {
-                                if (!glyphs.ContainsKey(hashStr))
+                                if (!glyphDatabase.ContainsKey(hashStr))
                                 {
                                     var baseGlyphFilename = String.Format("{0:d6}.png", dumped);
                                     var outputGlyphFilename = Path.Combine(outputFoldername, baseGlyphFilename);
 
-                                    //Console.WriteLine("Saving {0}...", outputGlyphFilename);
+                                    Console.WriteLine("Saving {0}...", outputGlyphFilename);
 
                                     if (Directory.Exists(outputGlyphFilename))
                                         Directory.CreateDirectory(outputGlyphFilename);
 
-                                    //glyph.Save(outputGlyphFilename);
+                                    glyph.Save(outputGlyphFilename);
 
-                                    glyphs[hashStr] = new GlyphEntry();
-                                    glyphs[hashStr].Filename = baseGlyphFilename;
-                                    glyphs[hashStr].Text = "";
-                                    glyphs[hashStr].References = new List<string>();
+                                    glyphDatabase[hashStr] = new GlyphEntry();
+                                    glyphDatabase[hashStr].Filename = baseGlyphFilename;
+                                    glyphDatabase[hashStr].Text = "";
+                                    glyphDatabase[hashStr].References = new List<string>();
 
                                     dumped++;
                                 }
 
-                                if(!glyphs[hashStr].References.Contains(baseFilename))
-                                    glyphs[hashStr].References.Add(baseFilename);
+                                if (!glyphDatabase[hashStr].References.Contains(baseFilename))
+                                    glyphDatabase[hashStr].References.Add(baseFilename);
                             }
                         }
                     }
                 }
             }
-
-            // Make a list out of all of the glyph entries without the dictionary so we can get a pretty output
-            var outputDatabaseFilename = Path.Combine(outputFoldername, outputGlyphDatabaseFilename);
-            File.WriteAllText(outputDatabaseFilename, JsonConvert.SerializeObject(glyphs, Formatting.Indented));
+            
+            var outputDatabaseFilename = Path.Combine(outputFoldername, glyphDatabaseFilename);
+            SaveGlyphDatabase(outputDatabaseFilename); 
 
             Console.WriteLine("Finished dumping {0} glyphs!", dumped);
             MessageBox.Show(String.Format("Finished dumping {0} glyphs!", dumped));
+        }
+
+        private void DumpText_Click(object sender, RoutedEventArgs e)
+        {
+            const string outputFoldername = "output_text";
+
+            if (!Directory.Exists(outputFoldername))
+                Directory.CreateDirectory(outputFoldername);
+
+            // Generate an image for every string in a file, and then generate an image based on all of those images
+            var scripts = ScriptList.Items;
+            int dumpedStrings = 0, dumpedScripts = 0;
+            foreach (string file in scripts)
+            {
+                var baseFilename = System.IO.Path.GetFileNameWithoutExtension(file);
+
+                if (String.Compare(baseFilename, "BasicCharSet", true) == 0 || String.Compare(baseFilename, "BasicRubySet", true) == 0 || String.Compare(baseFilename, "msg_0", true) == 0)
+                    continue;
+
+                string outputFilename = System.IO.Path.Combine(outputFoldername, baseFilename + ".png");
+                Console.WriteLine("Saving {0}...", outputFilename);
+
+                RmdFile rmd = new RmdFile(file, 0x391);
+
+                if (rmd.Strings != null)
+                {
+                    foreach (var str in rmd.Strings)
+                    {
+                        var d = DrawString(str.Value, -1, rmd);
+                        var key = System.IO.Path.GetFileName(file);
+
+                        if (String.Compare(key, String.Format("msg_{0}", str.Key)) == 0)
+                        {
+                            MessageBox.Show("Found msg that broke expected format of no double keys");
+                        }
+
+                        if (!translationDatabase.ContainsKey(str.Key))
+                        {
+                            translationDatabase[str.Key] = new TranslationEntry();
+
+                            if (d.Item2 != null)
+                            {
+                                translationDatabase[str.Key].Text = d.Item2;
+                                dumpedStrings++;
+                            }
+                            else
+                            {
+                                translationDatabase[str.Key].Text = "";
+                            }
+                        }
+                    }
+                }
+
+                dumpedScripts++;
+            }
+
+            SaveTranslationDatabase(System.IO.Path.Combine(outputFoldername, translationDatbaseFilename));
+            LoadTranslationDatabase(translationDatbaseFilename); // Get rid of all the extra entries we created for dumping
+
+            Console.WriteLine("Finished dumping {0} strings from {1} scripts!", dumpedStrings, dumpedScripts);
+            MessageBox.Show(String.Format("Finished dumping {0} strings from {1} scripts!", dumpedStrings, dumpedScripts));
         }
 
         private BitmapImage BitmapToImageSource(Bitmap input)
@@ -451,7 +528,7 @@ namespace psnova_texteditor
             int requiredWidth = 0;
             int x = 0, y = 0;
 
-            string opcodeTexts = "";
+            string outputText = "";
 
             // Calculate required image width and height
             int lines = 0;
@@ -518,7 +595,7 @@ namespace psnova_texteditor
 
                         x += tile.Width;
 
-                        opcodeTexts += opcodeText;
+                        outputText += opcodeText;
                     }
 
                     if (cmd == 0x8080)
@@ -563,6 +640,27 @@ namespace psnova_texteditor
                             g.DrawImage(targetFont.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
                         tiles.Add(new Tuple<Bitmap, RectangleF>(tile, new RectangleF(x, y, glyphMetrics.Width, glyphMetrics.Height)));
 
+
+                        using (MemoryStream s = new MemoryStream())
+                        {
+                            tile.Save(s, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+                            {
+                                var hash = sha1.ComputeHash(s.GetBuffer());
+                                var hashStr = BitConverter.ToString(hash).ToLower().Replace("-", ""); // Preferred format
+
+                                if (hashStr == "d919fb1eb06492a666fbec418813f723e97a6e4f") // No image
+                                {
+                                    outputText += " ";
+                                }
+                                else if (glyphDatabase.ContainsKey(hashStr))
+                                {
+                                    outputText += glyphDatabase[hashStr].Text;
+                                }
+                            }
+                        }
+
                         var w = targetFont.GlyphSizes[cmd].Item1;
                         var h = targetFont.GlyphSizes[cmd].Item2;
                         x += w;
@@ -590,11 +688,11 @@ namespace psnova_texteditor
                 }
             }
 
-            opcodeTexts = opcodeTexts.Replace("[n]", "");
-            if(String.IsNullOrWhiteSpace(opcodeTexts))
-                opcodeTexts = null;
+            outputText = outputText.Replace("[n]", "\n");
+            if(String.IsNullOrWhiteSpace(outputText))
+                outputText = null;
 
-            return new Tuple<Bitmap, string>(output, opcodeTexts);
+            return new Tuple<Bitmap, string>(output, outputText);
         }
 
         private static Bitmap DrawTextToBitmap(string text, float fontsize, System.Drawing.Color color)

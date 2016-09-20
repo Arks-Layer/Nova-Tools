@@ -28,6 +28,9 @@
                 <ToolBar>
                     <Button Content="Dump Glyphs" Click="DumpGlyphs_Click" IsEnabled="True" />
                 </ToolBar>
+                <ToolBar>
+                    <Button Content="Dump Text" Click="DumpText_Click" IsEnabled="True" />
+                </ToolBar>
             </ToolBarTray>
         </Grid>
 
