@@ -26,7 +26,7 @@ namespace psnova_texteditor
     {
         public string Filename;
         public string Text;
-        public List<string> References;
+        public List<Tuple<string, uint>> References;
     }
 
     /// <summary>
@@ -386,9 +386,6 @@ namespace psnova_texteditor
                 {
                     var baseFilename = System.IO.Path.GetFileNameWithoutExtension(file);
 
-                    if (String.Compare(baseFilename, "BasicCharSet", true) == 0 || String.Compare(baseFilename, "BasicRubySet", true) == 0 || String.Compare(baseFilename, "msg_0", true) == 0)
-                        continue;
-
                     string outputFilename = System.IO.Path.Combine(outputFoldername, baseFilename + ".png");
 
                     RmdFile rmd = new RmdFile(file, 0x391);
@@ -428,13 +425,12 @@ namespace psnova_texteditor
                                     glyphDatabase[hashStr] = new GlyphEntry();
                                     glyphDatabase[hashStr].Filename = baseGlyphFilename;
                                     glyphDatabase[hashStr].Text = "";
-                                    glyphDatabase[hashStr].References = new List<string>();
+                                    glyphDatabase[hashStr].References = new List<Tuple<string, uint>>();
 
                                     dumped++;
                                 }
 
-                                if (!glyphDatabase[hashStr].References.Contains(baseFilename))
-                                    glyphDatabase[hashStr].References.Add(baseFilename);
+                                glyphDatabase[hashStr].References.Add(new Tuple<string, uint>(baseFilename, gm.Key));
                             }
                         }
                     }
