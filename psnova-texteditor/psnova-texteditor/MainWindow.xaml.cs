@@ -1,20 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using System.Drawing;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace psnova_texteditor
 {
@@ -348,6 +340,96 @@ namespace psnova_texteditor
 
             Console.WriteLine("Finished dumping {0} scripts!", dumped);
             MessageBox.Show(String.Format("Finished dumping {0} scripts!", dumped));
+        }
+
+        class GlyphEntry
+        {
+            public string Filename;
+            public string Text;
+            public List<string> References;
+        }
+
+        private void DumpGlyphs_Click(object sender, RoutedEventArgs e)
+        {
+            // Dump all unique glyphs used in the scripts
+
+            const string outputFoldername = "output_glyphs";
+            const string outputGlyphDatabaseFilename = "glyphs.json";
+
+            if (!Directory.Exists(outputFoldername))
+                Directory.CreateDirectory(outputFoldername);
+            
+            Dictionary<string, GlyphEntry> glyphs = new Dictionary<string, GlyphEntry>();
+
+            int dumped = 0;
+            using (SHA1CryptoServiceProvider sha1 = new SHA1CryptoServiceProvider())
+            {
+                var scripts = ScriptList.Items;
+                foreach (string file in scripts)
+                {
+                    var baseFilename = System.IO.Path.GetFileNameWithoutExtension(file);
+
+                    if (String.Compare(baseFilename, "BasicCharSet", true) == 0 || String.Compare(baseFilename, "BasicRubySet", true) == 0 || String.Compare(baseFilename, "msg_0", true) == 0)
+                        continue;
+
+                    string outputFilename = System.IO.Path.Combine(outputFoldername, baseFilename + ".png");
+
+                    RmdFile rmd = new RmdFile(file, 0x391);
+                    foreach (var gm in rmd.FontMapping)
+                    {
+                        Rectangle glyphMetrics = gm.Value;
+
+                        Bitmap glyph = new Bitmap(glyphMetrics.Width, glyphMetrics.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+                        using (Graphics g = Graphics.FromImage(glyph))
+                        {
+                            g.DrawImage(rmd.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
+                        }
+
+                        using (MemoryStream s = new MemoryStream())
+                        {
+                            glyph.Save(s, System.Drawing.Imaging.ImageFormat.Bmp);
+
+                            var hash = sha1.ComputeHash(s.GetBuffer());
+
+                            var hashStr = BitConverter.ToString(hash).ToLower().Replace("-",""); // Preferred format
+
+                            if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f") // No glyph
+                            {
+                                if (!glyphs.ContainsKey(hashStr))
+                                {
+                                    var baseGlyphFilename = String.Format("{0:d6}.png", dumped);
+                                    var outputGlyphFilename = Path.Combine(outputFoldername, baseGlyphFilename);
+
+                                    //Console.WriteLine("Saving {0}...", outputGlyphFilename);
+
+                                    if (Directory.Exists(outputGlyphFilename))
+                                        Directory.CreateDirectory(outputGlyphFilename);
+
+                                    //glyph.Save(outputGlyphFilename);
+
+                                    glyphs[hashStr] = new GlyphEntry();
+                                    glyphs[hashStr].Filename = baseGlyphFilename;
+                                    glyphs[hashStr].Text = "";
+                                    glyphs[hashStr].References = new List<string>();
+
+                                    dumped++;
+                                }
+
+                                if(!glyphs[hashStr].References.Contains(baseFilename))
+                                    glyphs[hashStr].References.Add(baseFilename);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Make a list out of all of the glyph entries without the dictionary so we can get a pretty output
+            var outputDatabaseFilename = Path.Combine(outputFoldername, outputGlyphDatabaseFilename);
+            File.WriteAllText(outputDatabaseFilename, JsonConvert.SerializeObject(glyphs, Formatting.Indented));
+
+            Console.WriteLine("Finished dumping {0} glyphs!", dumped);
+            MessageBox.Show(String.Format("Finished dumping {0} glyphs!", dumped));
         }
 
         private BitmapImage BitmapToImageSource(Bitmap input)

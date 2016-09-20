@@ -169,8 +169,6 @@ namespace psnova_textinserter
 
                 if (c == '[' && input.Contains(']'))
                 {
-                    var readExtraBytes = false;
-
                     var args = input.Remove(0, i + 2);
                     args = args.Substring(0, args.IndexOf(']'));
                     args = args.Replace(" ", "").Trim();

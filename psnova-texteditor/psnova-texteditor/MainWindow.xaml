@@ -23,7 +23,10 @@
                     <Button Content="Reload Database" Click="ReloadDatabase_Click" IsEnabled="True" />
                 </ToolBar>
                 <ToolBar>
-                    <Button Content="Dump All Scripts" Click="DumpScripts_Click" IsEnabled="True" />
+                    <Button Content="Dump Scripts" Click="DumpScripts_Click" IsEnabled="True" />
+                </ToolBar>
+                <ToolBar>
+                    <Button Content="Dump Glyphs" Click="DumpGlyphs_Click" IsEnabled="True" />
                 </ToolBar>
             </ToolBarTray>
         </Grid>
