@@ -393,23 +393,27 @@ namespace psnova_texteditor
                     {
                         Rectangle glyphMetrics = gm.Value;
 
-                        Bitmap glyph = new Bitmap(glyphMetrics.Width, glyphMetrics.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        Bitmap glyphOrig = new Bitmap(glyphMetrics.Width, glyphMetrics.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        Bitmap glyphBlack = new Bitmap(glyphMetrics.Width, glyphMetrics.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-                        using (Graphics g = Graphics.FromImage(glyph))
+                        using (Graphics g1 = Graphics.FromImage(glyphOrig))
+                        using (Graphics g2 = Graphics.FromImage(glyphBlack))
                         {
-                            g.Clear(Color.Black);
-                            g.DrawImage(rmd.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
+                            g1.DrawImage(rmd.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
+
+                            g2.Clear(Color.Black);
+                            g2.DrawImage(rmd.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
                         }
 
                         using (MemoryStream s = new MemoryStream())
                         {
-                            glyph.Save(s, System.Drawing.Imaging.ImageFormat.Bmp);
+                            glyphOrig.Save(s, System.Drawing.Imaging.ImageFormat.Bmp);
 
                             var hash = sha1.ComputeHash(s.GetBuffer());
 
                             var hashStr = BitConverter.ToString(hash).ToLower().Replace("-", ""); // Preferred format
 
-                            if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f" && hashStr != "f8f73fbb2689a7a5b7bef927fc467a3c4c459159") // No glyph
+                            if (hashStr != "d919fb1eb06492a666fbec418813f723e97a6e4f") // No glyph
                             {
                                 if (!glyphDatabase.ContainsKey(hashStr))
                                 {
@@ -420,8 +424,8 @@ namespace psnova_texteditor
 
                                     if (Directory.Exists(outputGlyphFilename))
                                         Directory.CreateDirectory(outputGlyphFilename);
-
-                                    glyph.Save(outputGlyphFilename);
+                                    
+                                    glyphBlack.Save(outputGlyphFilename);
 
                                     glyphDatabase[hashStr] = new GlyphEntry();
                                     glyphDatabase[hashStr].Filename = baseGlyphFilename;
