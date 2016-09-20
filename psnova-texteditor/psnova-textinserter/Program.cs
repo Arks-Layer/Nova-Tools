@@ -162,6 +162,9 @@ namespace psnova_textinserter
         {
             List<byte> output = new List<byte>();
 
+            // Convert newline in string to opcode newline
+            input = input.Replace("\n", "[n]");
+
             for(int i = 0; i < input.Length; i++)
             {
                 var c = input[i];
