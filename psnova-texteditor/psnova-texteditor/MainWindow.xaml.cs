@@ -558,11 +558,11 @@ namespace psnova_texteditor
                     }
                     else if (cmd == 0x8090)
                     {
-                        opcodeText = "c";
+                        opcodeText = "ruby";
                     }
                     else if (cmd == 0x8091)
                     {
-                        opcodeText = "d";
+                        opcodeText = "/ruby";
                     }
                     else if (cmd == 0x8094)
                     {
@@ -574,8 +574,22 @@ namespace psnova_texteditor
                     }
 
                     opcodeText = "[" + opcodeText + " ";
-                    for (int j = 2; j < c.Length; j++)
-                        opcodeText += String.Format("{0:x2} ", c[j]);
+
+                    if(cmd == 0x8090) {
+                        string basicRubySet =
+                            "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽぁぃぅぇぉゃゅょっゎ・ー" +
+                            "ヴアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヴガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポァィゥェォャュョッヮヵヶ●1234567890-N";
+
+                        for (int j = 2; j < c.Length; j++)
+                        {
+                            opcodeText += String.Format("{0}", basicRubySet[c[j] - 1]);
+                        }
+                    }
+                    else {
+                        for (int j = 2; j < c.Length; j++)
+                            opcodeText += String.Format("{0:x2} ", c[j]);
+                    }
+
                     opcodeText = opcodeText.Trim() + "]";
 
                     if (opcodeText != null)
@@ -612,35 +626,28 @@ namespace psnova_texteditor
                 }
                 else
                 {
+                    if (frameWidth != -1 && x + glyphWidth >= frameWidth)
+                    {
+                        y += glyphHeight;
+                        x = 0;
+                    }
+
                     RmdFile targetFont = null;
-
                     if (basicCharSetRmd != null && basicCharSetRmd.FontMapping.ContainsKey(cmd))
-                    {
                         targetFont = basicCharSetRmd;
-                    }
                     else if (basicRubySetRmd != null && basicRubySetRmd.FontMapping.ContainsKey(cmd))
-                    {
                         targetFont = basicRubySetRmd;
-                    }
                     else if (currentRmd != null && currentRmd.FontMapping.ContainsKey(cmd))
-                    {
                         targetFont = currentRmd;
-                    }
+                    else
+                        continue;
 
-                    if (targetFont != null)
+                    var tileGlyphs = DrawGlyphs(cmd, targetFont, x, y);
+                    var tile = tileGlyphs.Count > 0 ? tileGlyphs[0].Item1 : null;
+
+                    if (tile != null)
                     {
-                        if (frameWidth != -1 && x + glyphWidth >= frameWidth)
-                        {
-                            y += glyphHeight;
-                            x = 0;
-                        }
-
-                        var glyphMetrics = targetFont.FontMapping[cmd];
-                        Bitmap tile = new Bitmap(glyphMetrics.Width, glyphMetrics.Height);
-                        using (Graphics g = Graphics.FromImage(tile))
-                            g.DrawImage(targetFont.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
-                        tiles.Add(new Tuple<Bitmap, RectangleF>(tile, new RectangleF(x, y, glyphMetrics.Width, glyphMetrics.Height)));
-
+                        tiles.AddRange(tileGlyphs);
 
                         using (MemoryStream s = new MemoryStream())
                         {
@@ -661,14 +668,13 @@ namespace psnova_texteditor
                                 }
                             }
                         }
+                    }
 
+                    if (targetFont.GlyphSizes.ContainsKey(cmd))
+                    {
                         var w = targetFont.GlyphSizes[cmd].Item1;
                         var h = targetFont.GlyphSizes[cmd].Item2;
                         x += w;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Could not find {0:x2} in font mapping", cmd);
                     }
                 }
             }
@@ -694,6 +700,26 @@ namespace psnova_texteditor
                 outputText = null;
 
             return new Tuple<Bitmap, string>(output, outputText);
+        }
+
+        private List<Tuple<Bitmap, RectangleF>> DrawGlyphs(uint cmd, RmdFile targetFont, int x, int y)
+        {
+            var tiles = new List<Tuple<Bitmap, RectangleF>>();
+
+            if (targetFont != null)
+            {
+                var glyphMetrics = targetFont.FontMapping[cmd];
+                Bitmap tile = new Bitmap(glyphMetrics.Width, glyphMetrics.Height);
+                using (Graphics g = Graphics.FromImage(tile))
+                    g.DrawImage(targetFont.Font, new RectangleF(0, 0, glyphMetrics.Width, glyphMetrics.Height), glyphMetrics, GraphicsUnit.Pixel);
+                tiles.Add(new Tuple<Bitmap, RectangleF>(tile, new RectangleF(x, y, glyphMetrics.Width, glyphMetrics.Height)));
+            }
+            else
+            {
+                Console.WriteLine("Could not find {0:x2} in font mapping", cmd);
+            }
+
+            return tiles;
         }
 
         private static Bitmap DrawTextToBitmap(string text, float fontsize, System.Drawing.Color color)
