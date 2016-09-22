@@ -4,11 +4,12 @@ A set of tools to modify the files in Nova, so we can get a translation going!
 
 
 ##AIF to GXT (aif_to_gxt.py) [Developed by Nagato]
-Converts AIF files to GXT files, for use with GXTConvert.
+Converts AIF files to GXT files, for use with GXTConvert. (Only works with Python 2!)
+
+This will convert a AIF file to GXT, then automatically to PNG.
 
 ##GXT Convert (GXTConvert.exe) [Developed by [xdaniel](https://twitter.com/xdanieldzd)]
 This converts GXT files to PNG.
-
 
 ##psnova-texteditor [Developed by Nagato]
 Includes two parts: psnova-texteditor and psnova-textinserter.  
