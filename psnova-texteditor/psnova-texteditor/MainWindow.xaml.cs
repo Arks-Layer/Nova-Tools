@@ -221,7 +221,7 @@ namespace psnova_texteditor
                     skipTextChanged = true;
                     TextEditor.Text = translationDatabase[currentSelectedId].Text;
                 }
-                else if (!hasTranslation && outputText != null)
+                else if ((!hasTranslation || (!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text))) && (hasTranslation && outputText != null))
                 {
                     TextEditor.Text = outputText;
                 }
