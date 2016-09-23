@@ -13,6 +13,9 @@ namespace psnova_texteditor
     class TranslationEntry
     {
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string OriginalText = "";
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Text = "";
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
@@ -40,8 +43,11 @@ namespace psnova_texteditor
 
         Dictionary<ulong, TranslationEntry> translationDatabase = new Dictionary<ulong, TranslationEntry>();
         Dictionary<string, GlyphEntry> glyphDatabase = new Dictionary<string, GlyphEntry>();
+        Dictionary<string, Dictionary<uint, string>> reverseGlyphDatabase = new Dictionary<string, Dictionary<uint, string>>();
+
         const string translationDatbaseFilename = "translations.json";
         const string glyphDatabaseFilename = "glyphs.json";
+
 
         public MainWindow()
         {
@@ -49,6 +55,7 @@ namespace psnova_texteditor
 
             translationDatabase = LoadTranslationDatabase(translationDatbaseFilename);
             glyphDatabase = LoadGlyphDatabase(glyphDatabaseFilename);
+            reverseGlyphDatabase = BuildReverseGlyphDatabase(glyphDatabase);
 
             var scriptsFolder = "scripts";
 
@@ -125,6 +132,23 @@ namespace psnova_texteditor
         private void SaveGlyphDatabase(string filename)
         {
             File.WriteAllText(filename, JsonConvert.SerializeObject(glyphDatabase, Formatting.Indented));
+        }
+
+        private Dictionary<string, Dictionary<uint, string>> BuildReverseGlyphDatabase(Dictionary<string, GlyphEntry> input)
+        {
+            var output = new Dictionary<string, Dictionary<uint, string>>();
+            foreach (var k in input)
+            {
+                foreach(var scriptRef in k.Value.References)
+                {
+                    if (!output.ContainsKey(scriptRef.Item1))
+                        output[scriptRef.Item1] = new Dictionary<uint, string>();
+
+                    output[scriptRef.Item1][scriptRef.Item2] = k.Value.Text;
+                }
+            }
+
+            return output;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -466,9 +490,6 @@ namespace psnova_texteditor
                 if (String.Compare(baseFilename, "BasicCharSet", true) == 0 || String.Compare(baseFilename, "BasicRubySet", true) == 0 || String.Compare(baseFilename, "msg_0", true) == 0)
                     continue;
 
-                string outputFilename = System.IO.Path.Combine(outputFoldername, baseFilename + ".png");
-                Console.WriteLine("Saving {0}...", outputFilename);
-
                 RmdFile rmd = new RmdFile(file, 0x391);
 
                 if (rmd.Strings != null)
@@ -486,16 +507,16 @@ namespace psnova_texteditor
                         if (!translationDatabase.ContainsKey(str.Key))
                         {
                             translationDatabase[str.Key] = new TranslationEntry();
+                        }
 
-                            if (d.Item2 != null)
-                            {
-                                translationDatabase[str.Key].Text = d.Item2;
-                                dumpedStrings++;
-                            }
-                            else
-                            {
-                                translationDatabase[str.Key].Text = "";
-                            }
+                        if (d.Item2 != null)
+                        {
+                            translationDatabase[str.Key].OriginalText = d.Item2;
+                            dumpedStrings++;
+                        }
+                        else
+                        {
+                            translationDatabase[str.Key].OriginalText = "";
                         }
                     }
                 }
@@ -575,17 +596,15 @@ namespace psnova_texteditor
 
                     opcodeText = "[" + opcodeText + " ";
 
-                    if(cmd == 0x8090) {
-                        string basicRubySet =
-                            "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽぁぃぅぇぉゃゅょっゎ・ー" +
-                            "ヴアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヴガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポァィゥェォャュョッヮヵヶ●1234567890-N";
-
+                    if (cmd == 0x8090)
+                    {
                         for (int j = 2; j < c.Length; j++)
                         {
-                            opcodeText += String.Format("{0}", basicRubySet[c[j] - 1]);
+                            opcodeText += String.Format("{0}", GetTextByGlypyId("BasicRubySet", (uint)basicRubySetRmd.CharsetOffset + c[j] - 1));
                         }
                     }
-                    else {
+                    else
+                    {
                         for (int j = 2; j < c.Length; j++)
                             opcodeText += String.Format("{0:x2} ", c[j]);
                     }
@@ -722,7 +741,7 @@ namespace psnova_texteditor
             return tiles;
         }
 
-        private static Bitmap DrawTextToBitmap(string text, float fontsize, System.Drawing.Color color)
+        private Bitmap DrawTextToBitmap(string text, float fontsize, System.Drawing.Color color)
         {
             var drawFont = new Font("Arial", fontsize, GraphicsUnit.Pixel);
             var drawBrush = new SolidBrush(color);
@@ -744,6 +763,14 @@ namespace psnova_texteditor
             drawing.Dispose();
 
             return tile;
+        }
+
+        private string GetTextByGlypyId(string script, uint glyphId)
+        {
+            if (!reverseGlyphDatabase.ContainsKey(script) || !reverseGlyphDatabase[script].ContainsKey(glyphId))
+                return "";
+
+            return reverseGlyphDatabase[script][glyphId];
         }
     }
 }

@@ -10,6 +10,7 @@ namespace psnova_texteditor
 {
     class RmdFile
     {
+        public int CharsetOffset;
         public Bitmap Font;
         public Dictionary<uint, Rectangle> FontMapping;
         public Dictionary<uint, Tuple<int, int>> GlyphSizes;
@@ -18,7 +19,9 @@ namespace psnova_texteditor
 
         public RmdFile(string filename, int charsetBaseRangeStart)
         {
-            using(BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
+            CharsetOffset = charsetBaseRangeStart;
+
+            using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
             {
                 Console.WriteLine("Loading {0}...", filename);
 
