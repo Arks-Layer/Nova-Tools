@@ -8,14 +8,12 @@ using Newtonsoft.Json;
 
 namespace psnova_textinserter
 {
-    class CharacterEntry
-    {
-        public ushort Id;
-        public char Text;
-    }
-
     class TranslationEntry
     {
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
+        public string OriginalText = "";
+
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Include)]
         public string Text = "";
 
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
@@ -25,37 +23,33 @@ namespace psnova_textinserter
         public string Base = null;
     }
 
+    class GlyphEntry
+    {
+        public string Filename;
+        public string Text;
+        public List<Tuple<string, uint>> References;
+    }
+
     class Program
     {
-        const string charmapDatbaseFilename = "charmap.json";
+        const string charmapDatabaseFilename = "glyphs.json";
         const string translationDatabaseFilename = "translations.json";
 
-        static Dictionary<ushort, CharacterEntry> charmap;
-        static Dictionary<char, CharacterEntry> charmapReverse;
+        static Dictionary<string, Dictionary<string, ushort>> charmapReverse;
 
         static Dictionary<ulong, TranslationEntry> translationDatabase = new Dictionary<ulong, TranslationEntry>();
 
         static void Main(string[] args)
         {
             LoadCharacterMapping();
-
-            if (args.Length != 0)
-            {
-                Console.WriteLine("Input string: {0}", args[0]);
-                Console.Write("Output hex: ");
-
-                var c = TranslateString(args[0]);
-                for(int i = 0; i < c.Length - 1; i++)
-                {
-                    Console.Write("{0:x2} ", c[i]);
-                }
-
-                Console.WriteLine();
-
-                Environment.Exit(1);
-            }
-
             LoadTranslationDatabase(translationDatabaseFilename);
+
+            var s = "エマージェンシートライアル成功！";
+            foreach(var b in TranslateString("msg_10001", s))
+            {
+                Console.Write("{0:x2} ", b);
+            }
+            Environment.Exit(1);
 
             foreach (var entry in translationDatabase)
             {
@@ -70,7 +64,7 @@ namespace psnova_textinserter
                         baseFilename = String.Format("msg_{0}.rmd", entry.Value.Base);
 
 
-                    var data = TranslateString(entry.Value.Text);
+                    var data = TranslateString(String.Format("msg_{0}", entry.Key), entry.Value.Text);
                     InsertTranslation(filename, entry.Key, data, baseFilename);
                 }
             }
@@ -158,7 +152,7 @@ namespace psnova_textinserter
             }
         }
 
-        static private byte[] TranslateString(string input)
+        static private byte[] TranslateString(string script, string input)
         {
             List<byte> output = new List<byte>();
 
@@ -215,9 +209,12 @@ namespace psnova_textinserter
                     foundControlCode = true;
                 }
 
-                if (!foundControlCode && charmapReverse.ContainsKey(c))
+                if (!foundControlCode)
                 {
-                    output.AddRange(BitConverter.GetBytes(charmapReverse[c].Id));
+                    if(charmapReverse.ContainsKey(script) && charmapReverse[script].ContainsKey(c.ToString()))
+                        output.AddRange(BitConverter.GetBytes(charmapReverse[script][c.ToString()]));
+                    else if (charmapReverse.ContainsKey("BasicCharSet") && charmapReverse["BasicCharSet"].ContainsKey(c.ToString()))
+                        output.AddRange(BitConverter.GetBytes(charmapReverse["BasicCharSet"][c.ToString()]));
                 }
             }
 
@@ -268,98 +265,47 @@ namespace psnova_textinserter
 
         static private void LoadCharacterMapping()
         {
-            if (!File.Exists(charmapDatbaseFilename))
-                GenerateCharMap();
+            Dictionary<string, GlyphEntry> charmap;
 
-            if (File.Exists(charmapDatbaseFilename))
+            if (File.Exists(charmapDatabaseFilename))
             { 
-                var data = File.ReadAllText(charmapDatbaseFilename);
+                var data = File.ReadAllText(charmapDatabaseFilename);
 
                 if (String.IsNullOrWhiteSpace(data))
                 {
-                    charmap = new Dictionary<ushort, CharacterEntry>();
+                    charmap = new Dictionary<string, GlyphEntry>();
                 }
                 else
                 {
-                    charmap = JsonConvert.DeserializeObject<Dictionary<ushort, CharacterEntry>>(data);
+                    charmap = JsonConvert.DeserializeObject<Dictionary<string, GlyphEntry>>(data);
                 }
             }
             else
             {
-                charmap = new Dictionary<ushort, CharacterEntry>();
+                charmap = new Dictionary<string, GlyphEntry>();
             }
 
             // Build the reverse lookup table
-            charmapReverse = new Dictionary<char, CharacterEntry>();
-            foreach(var c in charmap)
+            charmapReverse = new Dictionary<string, Dictionary<string, ushort>>();
+            foreach(var glyph in charmap)
             {
-                charmapReverse[c.Value.Text] = c.Value;
+                if(glyph.Value.References == null)
+                {
+                    Console.WriteLine(glyph.Key);
+                    Console.WriteLine("null");
+                    Environment.Exit(1);
+                }
+
+                foreach (var reference in glyph.Value.References)
+                {
+                    if (!charmapReverse.ContainsKey(reference.Item1))
+                    {
+                        charmapReverse[reference.Item1] = new Dictionary<string, ushort>();
+                    }
+
+                    charmapReverse[reference.Item1][glyph.Value.Text] = (ushort)reference.Item2;
+                }
             }
-        }
-
-        static private void SaveCharacterMapping()
-        {
-            File.WriteAllText(charmapDatbaseFilename, JsonConvert.SerializeObject(charmap, Formatting.Indented));
-        }
-
-        static private void GenerateCharMap()
-        {
-            charmap = new Dictionary<ushort, CharacterEntry>();
-
-            int baseCharset = 0x81;
-            string basicCharSet =
-                "0123456789-.'ABCDEFG" +
-                "HIJKLMNOPQRSTUVWXYZa" +
-                "bcdefghijklmnopqrstu" +
-                "vwxyzをぁぃぅぇぉゃゅょっゎあいうえ" +
-                "おかきくけこさしすせそたちつてとなにぬね" +
-                "のはひふへほまみむめもやゆよらりるれろわ" +
-                "んがぎぐげござじずぜぞだぢづでどばびぶべ" +
-                "ぼぱぴぷぺぽヲァィゥェォャュョッヮーアイ" +
-                "ウエオカキクケコサシスセソタチツテトナニ" +
-                "ヌネノハヒフヘホマミムメモヤユヨラリルレ" +
-                "ロワンヴガギグゲゴザジズゼゾダヂヅデドバ" +
-                "ビブベボパピプペポヵヶ 　、、。。・?？" +
-                "!！)）>＞]］}｝」』$%&,:;=|" +
-                "(（<＜[［{｛「『#＃@\"”*+＋-." +
-                "❜％＆：；＿＝＊^／｜❜￥＼￥￥/~^_" +
-                "'`～…♪×＄，０１２３４５６７８９ＡＢ" +
-                "ＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶ" +
-                "ＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐ" +
-                "ｑｒｓｔｕｖｗｘｙｚ☆★＠";
-
-            int charsetOffset = 0;
-            for (int i = 0; i < basicCharSet.Length; i++)
-            {
-                if (((i + baseCharset + 1) % 0x80) == 0)
-                    charsetOffset += 0x80;
-
-                CharacterEntry entry = new CharacterEntry();
-                entry.Id = (ushort)(i + charsetOffset + baseCharset);
-                entry.Text = basicCharSet[i];
-                charmap[entry.Id] = entry;
-            }
-
-            /*
-            baseCharset = 0x881;
-            string basicRubySet = 
-                "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをんがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽぁぃぅぇぉゃゅょっゎ・ー" +
-                "ヴアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワンヴガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポァィゥェォャュョッヮヵヶ●1234567890-N";
-
-            charsetOffset = 0;
-            for (int i = 0; i < basicRubySet.Length; i++)
-            {
-                if (((i + baseCharset + 1) % 0x80) == 0)
-                    charsetOffset += 0x80;
-
-                CharacterEntry entry = new CharacterEntry();
-                entry.Id = i + charsetOffset + baseCharset;
-                entry.Text = basicRubySet[i];
-                charmap[entry.Id] = entry;
-            }
-            */
-
-            SaveCharacterMapping();
         }
     }
 }
