@@ -21,6 +21,11 @@ namespace psnova_texteditor
         {
             CharsetOffset = charsetBaseRangeStart;
 
+            if (filename.EndsWith("BasicCharSet.rmd"))
+                CharsetOffset = 0x81;
+            else if (filename.EndsWith("BasicRubySet.rmd"))
+                CharsetOffset = 0x881;
+
             using (BinaryReader reader = new BinaryReader(File.OpenRead(filename)))
             {
                 Console.WriteLine("Loading {0}...", filename);
