@@ -210,9 +210,7 @@ namespace psnova_textinserter
                         {
                             if (charmapReverse.ContainsKey("BasicRubySet") && charmapReverse["BasicRubySet"].ContainsKey(r.ToString()))
                             {
-                                Console.WriteLine("{0:x4}", charmapReverse["BasicRubySet"][r.ToString()]);
                                 output.Add((byte)(charmapReverse["BasicRubySet"][r.ToString()] - 0x881 + 1));
-                                Console.WriteLine("{0:x2}", output.Last());
                             }
                         }
 
