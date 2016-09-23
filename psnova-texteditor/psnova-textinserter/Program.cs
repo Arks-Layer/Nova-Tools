@@ -44,13 +44,6 @@ namespace psnova_textinserter
             LoadCharacterMapping();
             LoadTranslationDatabase(translationDatabaseFilename);
 
-            var s = "エマージェンシートライアル成功！";
-            foreach(var b in TranslateString("msg_10001", s))
-            {
-                Console.Write("{0:x2} ", b);
-            }
-            Environment.Exit(1);
-
             foreach (var entry in translationDatabase)
             {
                 if (entry.Value.Enabled)
@@ -166,7 +159,12 @@ namespace psnova_textinserter
 
                 if (c == '[' && input.Contains(']'))
                 {
-                    var args = input.Remove(0, i + 2);
+                    var args = input.Remove(0, i + 1);
+
+                    int end = args.IndexOf(']');
+                    if (args.Contains(' '))
+                        args = args.Remove(0, args.IndexOf(' ') + 1 < end ? args.IndexOf(' ') + 1 : end);
+
                     args = args.Substring(0, args.IndexOf(']'));
                     args = args.Replace(" ", "").Trim();
 
@@ -190,7 +188,7 @@ namespace psnova_textinserter
                         output.AddRange(GetExtraBytes(args));
                         output.Add(0x00);
                     }
-                    else if (input[i + 1] == 'd')
+                    else if (input[i + 1] == 'd' || (input.Length - i >= 6 && input.Substring(i + 1, 5) == "/ruby"))
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8091));
                     }
@@ -204,7 +202,23 @@ namespace psnova_textinserter
                         output.AddRange(BitConverter.GetBytes((ushort)0x8099));
                         output.AddRange(GetExtraBytes(args));
                     }
-                    
+                    else if (input.Length - i >= 5 && input.Substring(i + 1, 4) == "ruby")
+                    {
+                        output.AddRange(BitConverter.GetBytes((ushort)0x8090));
+
+                        foreach(var r in args)
+                        {
+                            if (charmapReverse.ContainsKey("BasicRubySet") && charmapReverse["BasicRubySet"].ContainsKey(r.ToString()))
+                            {
+                                Console.WriteLine("{0:x4}", charmapReverse["BasicRubySet"][r.ToString()]);
+                                output.Add((byte)(charmapReverse["BasicRubySet"][r.ToString()] - 0x881 + 1));
+                                Console.WriteLine("{0:x2}", output.Last());
+                            }
+                        }
+
+                        output.Add(0x00);
+                    }
+
                     i = input.IndexOf(']', i);
                     foundControlCode = true;
                 }
