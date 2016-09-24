@@ -169,38 +169,45 @@ namespace psnova_textinserter
                     args = args.Replace(" ", "").Trim();
 
                     // Check for a control code
-                    if (input[i + 1] == 'n')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[n]")
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8080));
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'a')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[a " && args.Length != 0)
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8081));
                         output.AddRange(GetExtraBytes(args));
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'b')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[b]")
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8082));
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'c')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[c " && args.Length != 0)
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8090));
                         output.AddRange(GetExtraBytes(args));
                         output.Add(0x00);
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'd' || (input.Length - i >= 6 && input.Substring(i + 1, 5) == "/ruby"))
+                    else if ((i + 2 < input.Length && input.Substring(i, 3) == "[d]") || (input.Length - i >= 6 && input.Substring(i + 1, 5) == "/ruby"))
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8091));
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'e')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[e " && args.Length != 0)
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8094));
                         output.AddRange(GetExtraBytes(args));
+                        foundControlCode = true;
                     }
-                    else if (input[i + 1] == 'f')
+                    if (i + 2 < input.Length && input.Substring(i, 3) == "[f " && args.Length != 0)
                     {
                         output.AddRange(BitConverter.GetBytes((ushort)0x8099));
                         output.AddRange(GetExtraBytes(args));
+                        foundControlCode = true;
                     }
                     else if (input.Length - i >= 5 && input.Substring(i + 1, 4) == "ruby")
                     {
@@ -215,10 +222,11 @@ namespace psnova_textinserter
                         }
 
                         output.Add(0x00);
+                        foundControlCode = true;
                     }
 
-                    i = input.IndexOf(']', i);
-                    foundControlCode = true;
+                    if(foundControlCode)
+                        i = input.IndexOf(']', i);
                 }
 
                 if (!foundControlCode)
