@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -14,6 +15,8 @@ namespace NovaParse
 
         public static Dictionary<string, StringEntry> OutputEntries = new Dictionary<string, StringEntry>();
         public static List<Dictionary<string, StringEntry>> InputEntries = new List<Dictionary<string, StringEntry>>();
+
+        private static readonly Stopwatch Watch = new Stopwatch();
 
         public static void Parse()
         {
@@ -103,6 +106,8 @@ namespace NovaParse
 
             try
             {
+                Watch.Start();
+
                 foreach (Dictionary<string, StringEntry> inputEntry in InputEntries)
                     foreach (KeyValuePair<string, StringEntry> inputKvp in inputEntry)
                         foreach (KeyValuePair<string, StringEntry> outputKvp in OutputEntries)
@@ -118,6 +123,8 @@ namespace NovaParse
                         }
 
                 File.WriteAllText(Program.Config.TranslationJsonFileOutput, JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
+
+                Watch.Stop();
             }
             catch (Exception e)
             {
@@ -125,7 +132,7 @@ namespace NovaParse
             }
 
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Finished parsing all entries");
+            Console.WriteLine($"Finished parsing all entries in {Watch.ElapsedMilliseconds} ms");
         }
 
         private static void AddFiles(string path)
