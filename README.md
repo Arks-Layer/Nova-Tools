@@ -18,3 +18,5 @@ psnova-texteditor is a GUI program that lets you view any .rmd file located in t
   
 psnova-textinserter is a CLI program that uses the translations.json file from psnova-texteditor to generate new .rmd files. The original .rmd files must be located in the "scripts" folder in the same folder as the EXE.
   
+##NovaParse [Developed by [Kyle873](https://github.com/Kyle873)]
+This tool downloads a given ZIP revision of the PSNovaTranslations repository and uses the JSON files as an input to insert the translation data into the master JSON file for the purposes of creating the final patch build.
