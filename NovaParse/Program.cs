@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Configuration;
 using System.Threading.Tasks;
 
 namespace NovaParse
@@ -8,6 +9,8 @@ namespace NovaParse
     {
         public static Config Config;
         public static StreamWriter LogFile;
+
+        public static bool Auto = false;
 
         public static void WriteError(Exception e, string message)
         {
@@ -18,8 +21,23 @@ namespace NovaParse
             Console.Write(text);
             LogFile.Write(text);
 
-            Console.ReadLine();
+            if (!Auto)
+                Console.ReadLine();
             Environment.Exit(-1);
+        }
+
+        private static void ParseArgs(string[] args)
+        {
+            foreach (string arg in args)
+                if (arg.ToLower() == "--auto")
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Automation mode active");
+
+                    Auto = true;
+
+                    break;
+                }
         }
 
         private static void Main(string[] args)
@@ -28,6 +46,8 @@ namespace NovaParse
 
             try
             {
+                ParseArgs(args);
+
                 Config = Config.Load();
 
                 File.Delete(Config.LogFile);
@@ -44,7 +64,10 @@ namespace NovaParse
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Done!");
-                Console.ReadLine();
+                Console.ForegroundColor = ConsoleColor.Gray;
+
+                if (!Auto)
+                    Console.ReadLine();
             }
             catch (Exception e)
             {
