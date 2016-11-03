@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace NovaParse
@@ -11,7 +10,7 @@ namespace NovaParse
         public static StreamWriter LogFile;
 
         public static bool Auto = false;
-        public static bool Export = true;
+        public static bool Export = false;
 
         public static void WriteError(Exception e, string message)
         {
