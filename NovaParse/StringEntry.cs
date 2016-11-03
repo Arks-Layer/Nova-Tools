@@ -1,8 +1,4 @@
-﻿using System;
-
-using Newtonsoft.Json;
-
-namespace NovaParse
+﻿namespace NovaParse
 {
     public class StringEntry
     {

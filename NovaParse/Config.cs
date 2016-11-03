@@ -12,6 +12,7 @@ namespace NovaParse
         public string TranslationJsonFile { get; set; } = "translations.json";
         public string TranslationJsonFileOutput { get; set; } = "translations.output.json";
         public string LogFile { get; set; } = "NovaParse.log";
+        public string ExportFile { get; set; } = "Export.json";
 
         public static Config Load()
         {

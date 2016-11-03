@@ -50,6 +50,8 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Downloader.cs" />
+    <Compile Include="ExportConfig.cs" />
+    <Compile Include="ExportEntry.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

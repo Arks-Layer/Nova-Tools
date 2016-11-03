@@ -23,10 +23,18 @@ namespace NovaParse
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Beginning parsing process...");
 
-            PopulateFiles();
-            PopulateOutputEntries();
-            PopulateInputEntries();
-            ParseEntries();
+            if (Program.Export)
+            {
+                PopulateOutputEntries();
+                Export();
+            }
+            else
+            {
+                PopulateFiles();
+                PopulateOutputEntries();
+                PopulateInputEntries();
+                ParseEntries();
+            }
         }
 
         private static void PopulateFiles()
@@ -123,7 +131,8 @@ namespace NovaParse
                             break;
                         }
 
-                File.WriteAllText(Program.Config.TranslationJsonFileOutput, JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
+                File.WriteAllText(Program.Config.TranslationJsonFileOutput,
+                    JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
 
                 Watch.Stop();
             }
@@ -134,6 +143,41 @@ namespace NovaParse
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Finished parsing all entries in {Watch.ElapsedMilliseconds} ms");
+        }
+
+        private static void Export()
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("Exporting entries...");
+
+            try
+            {
+                ExportConfig exportConfig = JsonConvert.DeserializeObject<ExportConfig>(File.ReadAllText(Program.Config.ExportFile));
+                Dictionary<string, Dictionary<string, StringEntry>> exports = new Dictionary<string, Dictionary<string, StringEntry>>();
+
+                foreach (ExportEntry entry in exportConfig.Entries)
+                {
+                    Dictionary<string, StringEntry> entryList = (from outputKvp in OutputEntries
+                                                                 let ID = Convert.ToInt64(outputKvp.Key)
+                                                                 where ID >= entry.MinID && ID <= entry.MaxID
+                                                                 select outputKvp).ToDictionary(outputKvp => outputKvp.Key, outputKvp => outputKvp.Value);
+
+                    exports.Add(entry.Name, entryList);
+                }
+
+                if (!Directory.Exists("Export"))
+                    Directory.CreateDirectory("Export");
+
+                foreach (KeyValuePair<string, Dictionary<string, StringEntry>> exportKvp in exports)
+                    File.WriteAllText("Export\\" + exportKvp.Key + ".json", JsonConvert.SerializeObject(exportKvp.Value, Formatting.Indented));
+            }
+            catch (Exception e)
+            {
+                Program.WriteError(e, "Error exporting entries to split JSON files");
+            }
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Finished exporting entries");
         }
 
         private static void AddFiles(string path)

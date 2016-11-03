@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace NovaParse
@@ -10,6 +11,7 @@ namespace NovaParse
         public static StreamWriter LogFile;
 
         public static bool Auto = false;
+        public static bool Export = true;
 
         public static void WriteError(Exception e, string message)
         {
@@ -28,6 +30,7 @@ namespace NovaParse
         private static void ParseArgs(string[] args)
         {
             foreach (string arg in args)
+            {
                 if (arg.ToLower() == "--auto")
                 {
                     Console.ForegroundColor = ConsoleColor.Cyan;
@@ -37,6 +40,17 @@ namespace NovaParse
 
                     break;
                 }
+
+                if (arg.ToLower() == "--export")
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Exporting JSON files");
+
+                    Export = true;
+
+                    break;
+                }
+            }
         }
 
         private static void Main(string[] args)
@@ -52,11 +66,14 @@ namespace NovaParse
                 File.Delete(Config.LogFile);
                 LogFile = new StreamWriter(Config.LogFile);
 
-                Task download = Task.Factory.StartNew(Downloader.DownloadZip);
-                download.Wait();
+                if (!Export)
+                {
+                    Task download = Task.Factory.StartNew(Downloader.DownloadZip);
+                    download.Wait();
 
-                Task extract = Task.Factory.StartNew(Downloader.ExtractZip);
-                extract.Wait();
+                    Task extract = Task.Factory.StartNew(Downloader.ExtractZip);
+                    extract.Wait();
+                }
 
                 Task parse = Task.Factory.StartNew(Parser.Parse);
                 parse.Wait();
