@@ -115,7 +115,8 @@ namespace NovaParse
                             if (inputKvp.Key != outputKvp.Key) continue;
                             if (!inputKvp.Value.Enabled) continue;
 
-                            OutputEntries[outputKvp.Key] = inputKvp.Value;
+                            OutputEntries[outputKvp.Key].Text = inputKvp.Value.Text;
+                            OutputEntries[outputKvp.Key].Enabled = inputKvp.Value.Enabled;
 
                             Program.LogFile.WriteLine($"Replacing entry {inputKvp.Key}: {outputKvp.Value.OriginalText.Replace('\n', ' ').Replace('\r', ' ')} -> {inputKvp.Value.Text.Replace('\n', ' ').Replace('\r', ' ')}");
 
