@@ -141,7 +141,7 @@ namespace NovaParse
                             break;
                         }
 
-                File.WriteAllText(Program.Config.TranslationJsonFileOutput,JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
+                File.WriteAllText(Program.Config.TranslationJsonFileOutput, JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
 
                 Watch.Stop();
             }
