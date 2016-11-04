@@ -35,6 +35,7 @@ namespace NovaParse
                 PopulateOutputEntries();
                 PopulateInputEntries();
                 ParseEntries();
+                Cleanup();
             }
             else
             {
@@ -42,6 +43,7 @@ namespace NovaParse
                 PopulateOutputEntries();
                 PopulateInputEntries();
                 ParseEntries();
+                Cleanup();
             }
         }
 
@@ -92,7 +94,7 @@ namespace NovaParse
             {
                 foreach (string file in InputFiles)
                 {
-                    if (!file.EndsWith(".json".ToLower())) continue;
+                    if (!file.ToLower().EndsWith(".json")) continue;
 
                     string data = File.ReadAllText(file);
 
@@ -139,8 +141,7 @@ namespace NovaParse
                             break;
                         }
 
-                File.WriteAllText(Program.Config.TranslationJsonFileOutput,
-                    JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
+                File.WriteAllText(Program.Config.TranslationJsonFileOutput,JsonConvert.SerializeObject(OutputEntries, Formatting.Indented));
 
                 Watch.Stop();
             }
@@ -200,6 +201,15 @@ namespace NovaParse
 
             foreach (string folder in Directory.GetDirectories(path))
                 AddFiles(folder);
+        }
+
+        private static void Cleanup()
+        {
+            if (Directory.Exists(Program.Config.InputPath))
+                Directory.Delete(Program.Config.InputPath, true);
+
+            if (File.Exists(Program.Config.DownloadFileName))
+                File.Delete(Program.Config.DownloadFileName);
         }
     }
 }
