@@ -71,12 +71,12 @@
       "MaxID": 129999
     },
     {
-      "Name": "Weapons 2",
+      "Name": "Attachments",
       "MinID": 130000,
       "MaxID": 139999
     },
     {
-      "Name": "Weapon Descriptions 2",
+      "Name": "Attachment Descriptions",
       "MinID": 140000,
       "MaxID": 149999
     },
