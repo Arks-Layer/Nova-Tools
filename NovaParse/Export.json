@@ -1,0 +1,409 @@
+{
+  "Entries": [
+    {
+      "Name": "System Misc",
+      "MinID": 10000,
+      "MaxID": 10109
+    },
+    {
+      "Name": "Classes",
+      "MinID": 10201,
+      "MaxID": 10204
+    },
+    {
+      "Name": "Basic Terms",
+      "MinID": 10301,
+      "MaxID": 10340
+    },
+    {
+      "Name": "Races",
+      "MinID": 10401,
+      "MaxID": 10405
+    },
+    {
+      "Name": "Gender",
+      "MinID": 10501,
+      "MaxID": 10502
+    },
+    {
+      "Name": "Friendship Levels",
+      "MinID": 10601,
+      "MaxID": 10610
+    },
+    {
+      "Name": "Menus",
+      "MinID": 10701,
+      "MaxID": 29999
+    },
+    {
+      "Name": "NPCs",
+      "MinID": 30000,
+      "MaxID": 39999
+    },
+    {
+      "Name": "Skills",
+      "MinID": 50000,
+      "MaxID": 59999
+    },
+    {
+      "Name": "Skill Descriptions",
+      "MinID": 60000,
+      "MaxID": 69999
+    },
+    {
+      "Name": "Weapons",
+      "MinID": 90000,
+      "MaxID": 99999
+    },
+    {
+      "Name": "Weapon Descriptions",
+      "MinID": 100000,
+      "MaxID": 109999
+    },
+    {
+      "Name": "Enemy Cores",
+      "MinID": 110000,
+      "MaxID": 119999
+    },
+    {
+      "Name": "Enemy Core Descriptions",
+      "MinID": 120000,
+      "MaxID": 129999
+    },
+    {
+      "Name": "Weapons 2",
+      "MinID": 130000,
+      "MaxID": 139999
+    },
+    {
+      "Name": "Weapon Descriptions 2",
+      "MinID": 140000,
+      "MaxID": 149999
+    },
+    {
+      "Name": "Affixes",
+      "MinID": 150000,
+      "MaxID": 159999
+    },
+    {
+      "Name": "Effects",
+      "MinID": 160000,
+      "MaxID": 169999
+    },
+    {
+      "Name": "Help Text",
+      "MinID": 170000,
+      "MaxID": 179999
+    },
+    {
+      "Name": "Enemies",
+      "MinID": 180000,
+      "MaxID": 189999
+    },
+    {
+      "Name": "Quest Names",
+      "MinID": 200101,
+      "MaxID": 209999
+    },
+    {
+      "Name": "Quest Objectives",
+      "MinID": 210000,
+      "MaxID": 219999
+    },
+    {
+      "Name": "Quest Descriptions",
+      "MinID": 230000,
+      "MaxID": 239999
+    },
+    {
+      "Name": "Base",
+      "MinID": 240001,
+      "MaxID": 249999
+    },
+    {
+      "Name": "Base Descriptions",
+      "MinID": 250000,
+      "MaxID": 259999
+    },
+    {
+      "Name": "Communication Messages",
+      "MinID": 260000,
+      "MaxID": 269999
+    },
+    {
+      "Name": "Promise Orders",
+      "MinID": 280000,
+      "MaxID": 289999
+    },
+    {
+      "Name": "Promise Order Descriptions",
+      "MinID": 290000,
+      "MaxID": 299999
+    },
+    {
+      "Name": "Promise Order Objectives",
+      "MinID": 300000,
+      "MaxID": 309999
+    },
+    {
+      "Name": "Shields",
+      "MinID": 310000,
+      "MaxID": 319999
+    },
+    {
+      "Name": "Shield Descriptions",
+      "MinID": 320000,
+      "MaxID": 329999
+    },
+    {
+      "Name": "Costumes",
+      "MinID": 330000,
+      "MaxID": 339999
+    },
+    {
+      "Name": "Costume Descriptions",
+      "MinID": 340000,
+      "MaxID": 349999
+    },
+    {
+      "Name": "Materials",
+      "MinID": 350000,
+      "MaxID": 359999
+    },
+    {
+      "Name": "Material Descriptions",
+      "MinID": 360000,
+      "MaxID": 369999
+    },
+    {
+      "Name": "Consumable Items",
+      "MinID": 370000,
+      "MaxID": 379999
+    },
+    {
+      "Name": "Consumable item Descriptions",
+      "MinID": 380000,
+      "MaxID": 389999
+    },
+    {
+      "Name": "Boost Items",
+      "MinID": 390000,
+      "MaxID": 399999
+    },
+    {
+      "Name": "Boost Item Descriptions",
+      "MinID": 400000,
+      "MaxID": 409999
+    },
+    {
+      "Name": "Theater",
+      "MinID": 410000,
+      "MaxID": 419999
+    },
+    {
+      "Name": "Buttons",
+      "MinID": 430000,
+      "MaxID": 439999
+    },
+    {
+      "Name": "Chargen Parts",
+      "MinID": 440000,
+      "MaxID": 449999
+    },
+    {
+      "Name": "Chargen",
+      "MinID": 500000,
+      "MaxID": 509999
+    },
+    {
+      "Name": "NPC Styles",
+      "MinID": 510000,
+      "MaxID": 519999
+    },
+    {
+      "Name": "NPC Traits",
+      "MinID": 520000,
+      "MaxID": 529999
+    },
+    {
+      "Name": "NPC Comments",
+      "MinID": 530000,
+      "MaxID": 539999
+    },
+    {
+      "Name": "Crew Types",
+      "MinID": 540000,
+      "MaxID": 549999
+    },
+    {
+      "Name": "Food",
+      "MinID": 550000,
+      "MaxID": 559999
+    },
+    {
+      "Name": "Gran Arts",
+      "MinID": 560000,
+      "MaxID": 569999
+    },
+    {
+      "Name": "Gran Art Descriptions",
+      "MinID": 570000,
+      "MaxID": 579999
+    },
+    {
+      "Name": "Techniques",
+      "MinID": 580000,
+      "MaxID": 589999
+    },
+    {
+      "Name": "Technique Descriptions",
+      "MinID": 590000,
+      "MaxID": 599999
+    },
+    {
+      "Name": "Lobby Actions",
+      "MinID": 600000,
+      "MaxID": 609999
+    },
+    {
+      "Name": "Lobby Action Descriptions",
+      "MinID": 610000,
+      "MaxID": 619999
+    },
+    {
+      "Name": "Field Tutorials",
+      "MinID": 620000,
+      "MaxID": 629999
+    },
+    {
+      "Name": "Food Descriptions",
+      "MinID": 630001,
+      "MaxID": 639999
+    },
+    {
+      "Name": "Status Effects",
+      "MinID": 640000,
+      "MaxID": 649999
+    },
+    {
+      "Name": "Crew Descriptions",
+      "MinID": 650000,
+      "MaxID": 659999
+    },
+    {
+      "Name": "Class Descriptions",
+      "MinID": 660000,
+      "MaxID": 669999
+    },
+    {
+      "Name": "Gigantes",
+      "MinID": 670000,
+      "MaxID": 689999
+    },
+    {
+      "Name": "Gigantes Blast Descriptions",
+      "MinID": 690000,
+      "MaxID": 699999
+    },
+    {
+      "Name": "Team Quests",
+      "MinID": 700000,
+      "MaxID": 709999
+    },
+    {
+      "Name": "Team Quest Descriptions",
+      "MinID": 710000,
+      "MaxID": 719999
+    },
+    {
+      "Name": "Team Talk",
+      "MinID": 730000,
+      "MaxID": 739999
+    },
+    {
+      "Name": "Active Effects Descriptions",
+      "MinID": 740001,
+      "MaxID": 749999
+    },
+    {
+      "Name": "Names",
+      "MinID": 750000,
+      "MaxID": 759999
+    },
+    {
+      "Name": "Tutorial Titles",
+      "MinID": 770000,
+      "MaxID": 779999
+    },
+    {
+      "Name": "Tutorial Descriptions",
+      "MinID": 780000,
+      "MaxID": 789999
+    },
+    {
+      "Name": "Area Names",
+      "MinID": 790001,
+      "MaxID": 799999
+    },
+    {
+      "Name": "Loading Screens",
+      "MinID": 800000,
+      "MaxID": 809999
+    },
+    {
+      "Name": "Story Summaries",
+      "MinID": 810000,
+      "MaxID": 819999
+    },
+    {
+      "Name": "Affix Descriptions",
+      "MinID": 820000,
+      "MaxID": 829999
+    },
+    {
+      "Name": "Story 1",
+      "MinID": 100000010010013,
+      "MaxID": 100010060120007
+    },
+    {
+      "Name": "Story 2",
+      "MinID": 101010010010001,
+      "MaxID": 101010080015004
+    },
+    {
+      "Name": "Story 3",
+      "MinID": 101020020010004,
+      "MaxID": 101020060290004
+    },
+    {
+      "Name": "Story 4",
+      "MinID": 101030010010001,
+      "MaxID": 101030010110001
+    },
+    {
+      "Name": "Story 5",
+      "MinID": 102000010010000,
+      "MaxID": 102010040240005
+    },
+    {
+      "Name": "Story 6",
+      "MinID": 102020015010001,
+      "MaxID": 102020030132004
+    },
+    {
+      "Name": "Story 7",
+      "MinID": 102030010010004,
+      "MaxID": 102030010280004
+    },
+    {
+      "Name": "Story 8",
+      "MinID": 102040010010004,
+      "MaxID": 102040030350012
+    },
+    {
+      "Name": "Story 9",
+      "MinID": 102050010010001,
+      "MaxID": 102050010120001
+    },
+  ]
+}
