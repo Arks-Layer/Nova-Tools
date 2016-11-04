@@ -11,6 +11,7 @@ namespace NovaParse
         public string InputPath { get; set; } = "PSNovaTranslations-master";
         public string TranslationJsonFile { get; set; } = "translations.json";
         public string TranslationJsonFileOutput { get; set; } = "translations.output.json";
+        public string TranslationJsonFileUpdate { get; set; } = "translations.update.json";
         public string LogFile { get; set; } = "NovaParse.log";
         public string ExportFile { get; set; } = "Export.json";
 

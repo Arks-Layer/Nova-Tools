@@ -28,6 +28,14 @@ namespace NovaParse
                 PopulateOutputEntries();
                 Export();
             }
+            else if (Program.Update)
+            {
+                AddFile(Program.Config.TranslationJsonFileUpdate);
+
+                PopulateOutputEntries();
+                PopulateInputEntries();
+                ParseEntries();
+            }
             else
             {
                 PopulateFiles();
@@ -178,6 +186,11 @@ namespace NovaParse
 
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Finished exporting entries");
+        }
+
+        private static void AddFile(string fileName)
+        {
+            InputFiles.Add(fileName);
         }
 
         private static void AddFiles(string path)

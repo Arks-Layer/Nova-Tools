@@ -11,6 +11,7 @@ namespace NovaParse
 
         public static bool Auto = false;
         public static bool Export = false;
+        public static bool Update = false;
 
         public static void WriteError(Exception e, string message)
         {
@@ -49,7 +50,20 @@ namespace NovaParse
 
                     break;
                 }
+
+                if (arg.ToLower() == "--update")
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Performing master file update");
+
+                    Update = true;
+
+                    break;
+                }
             }
+
+            if (Export && Update)
+                throw new InvalidOperationException("You cannot use --export and --update at the same time");
         }
 
         private static void Main(string[] args)
@@ -65,7 +79,7 @@ namespace NovaParse
                 File.Delete(Config.LogFile);
                 LogFile = new StreamWriter(Config.LogFile);
 
-                if (!Export)
+                if (!Export && !Update)
                 {
                     Task download = Task.Factory.StartNew(Downloader.DownloadZip);
                     download.Wait();
