@@ -93,20 +93,8 @@ namespace NovaParse
             try
             {
                 foreach (string file in InputFiles)
-                {
-                    if (!file.ToLower().EndsWith(".json")) continue;
-
-                    string data = File.ReadAllText(file);
-
-                    // Since the array might be malformed from copy-pasting, check for and do some brace insertions to fix that if necessary
-                    if (!data.StartsWith("{"))
-                    {
-                        data = data.Insert(0, "{\r\n");
-                        data = data.Insert(data.Length, "}\r\n");
-                    }
-
-                    InputEntries.Add(JsonConvert.DeserializeObject<Dictionary<string, StringEntry>>(data));
-                }
+                    if (file.ToLower().EndsWith(".json"))
+                        InputEntries.Add(JsonConvert.DeserializeObject<Dictionary<string, StringEntry>>(File.ReadAllText(file)));
             }
             catch (Exception e)
             {
