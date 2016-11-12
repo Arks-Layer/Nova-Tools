@@ -79,6 +79,8 @@ namespace NovaParse
                 File.Delete(Config.LogFile);
                 LogFile = new StreamWriter(Config.LogFile);
 
+                Parser.Cleanup();
+
                 if (!Export && !Update)
                 {
                     Task download = Task.Factory.StartNew(Downloader.DownloadZip);

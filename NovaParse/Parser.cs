@@ -35,7 +35,6 @@ namespace NovaParse
                 PopulateOutputEntries();
                 PopulateInputEntries();
                 ParseEntries();
-                Cleanup();
             }
             else
             {
@@ -43,7 +42,25 @@ namespace NovaParse
                 PopulateOutputEntries();
                 PopulateInputEntries();
                 ParseEntries();
-                Cleanup();
+            }
+        }
+
+        public static void Cleanup()
+        {
+            if (Directory.Exists(Program.Config.InputPath))
+            {
+                Directory.Delete(Program.Config.InputPath, true);
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Cleaned up previous input folder");
+            }
+
+            if (File.Exists(Program.Config.DownloadFileName))
+            {
+                File.Delete(Program.Config.DownloadFileName);
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("Cleaned up previous commit ZIP file");
             }
         }
 
@@ -189,15 +206,6 @@ namespace NovaParse
 
             foreach (string folder in Directory.GetDirectories(path))
                 AddFiles(folder);
-        }
-
-        private static void Cleanup()
-        {
-            if (Directory.Exists(Program.Config.InputPath))
-                Directory.Delete(Program.Config.InputPath, true);
-
-            if (File.Exists(Program.Config.DownloadFileName))
-                File.Delete(Program.Config.DownloadFileName);
         }
     }
 }
