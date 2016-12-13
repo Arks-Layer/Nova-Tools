@@ -298,6 +298,11 @@
     {
       "Name": "Gigantes",
       "MinID": 670000,
+      "MaxID": 679999
+    },
+    {
+      "Name": "Gigantes Blasts",
+      "MinID": 680000,
       "MaxID": 689999
     },
     {
