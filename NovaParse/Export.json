@@ -311,22 +311,22 @@
       "MaxID": 699999
     },
     {
-      "Name": "Team Quests",
+      "Name": "Search Team Quests",
       "MinID": 700000,
       "MaxID": 709999
     },
     {
-      "Name": "Team Quest Descriptions",
+      "Name": "Search Team Quest Descriptions",
       "MinID": 710000,
       "MaxID": 719999
     },
     {
-      "Name": "Team Talk",
+      "Name": "Search Team Talk",
       "MinID": 730000,
       "MaxID": 739999
     },
     {
-      "Name": "Active Effects Descriptions",
+      "Name": "Food Effect Descriptions",
       "MinID": 740001,
       "MaxID": 749999
     },
