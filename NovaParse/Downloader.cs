@@ -10,6 +10,7 @@ namespace NovaParse
     {
         public static void DownloadZip()
         {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12; //Fuck off Cloudflare [Aida]
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Downloading commit ZIP file...");
 
