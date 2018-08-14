@@ -136,8 +136,31 @@ namespace psnova_textinserter
 
             if(!File.Exists(sourceFilename))
             {
-                Console.WriteLine("Please copy the original {0} into the '{1}' folder", sourceFilename, sourceDirectory);
-                return;
+                if (IsDLC == true)
+                {
+                    string DLCName;
+                    DirectoryInfo SearchDirectory = new DirectoryInfo(sourceDirectory);
+                    FileInfo[] filesInDir = SearchDirectory.GetFiles(filename,SearchOption.AllDirectories);
+
+                    foreach (FileInfo foundFile in filesInDir)
+                    {
+                        sourceFilename = foundFile.FullName;
+                        string[] DLCNameSplit = sourceFilename.Split('\\');
+                        DLCName = DLCNameSplit[DLCNameSplit.Length - 2];
+                        outputFilename = Path.Combine(@"output_dlc\" + DLCName, filename);
+                    }
+
+                    if (!File.Exists(sourceFilename))
+                    {
+                        Console.WriteLine("Please copy the original {0} into the '{1}' folder", sourceFilename, sourceDirectory);
+                        return;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Please copy the original {0} into the '{1}' folder", sourceFilename, sourceDirectory);
+                    return;
+                }
             }
 
             int stringIndexTableOffset;
