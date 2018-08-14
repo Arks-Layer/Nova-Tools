@@ -17,7 +17,7 @@
         <Grid Grid.Row="0">
             <ToolBarTray DockPanel.Dock="Top">
                 <ToolBar>
-                    <Button Content="Save" Click="Save_Click" IsEnabled="True" />
+                    <Button Content="Save" Click="Save_Click" IsEnabled="True" VerticalAlignment="Top" />
                 </ToolBar>
                 <ToolBar>
                     <Button Content="Reload Database" Click="ReloadDatabase_Click" IsEnabled="True" />
@@ -52,11 +52,14 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,-157,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="200*"/>
                     </Grid.RowDefinitions>
-                    <Label Content="Strings" HorizontalAlignment="Center"/>
+                    <Label Content="Strings" HorizontalAlignment="Center" Margin="174,0,175,0"/>
                     <ListBox Grid.Row="1" x:Name="StringList" Margin="1,1,0,1" SelectionChanged="StringList_SelectionChanged" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" />
                 </Grid>
 

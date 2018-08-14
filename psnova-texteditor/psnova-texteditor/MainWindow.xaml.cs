@@ -56,7 +56,7 @@ namespace psnova_texteditor
             InitializeComponent();
 
             translationDatabase = LoadTranslationDatabase(translationDatbaseFilename);
-            translationDLCDatabase = LoadTranslationDatabase(translationDLCDatbaseFilename);
+            translationDLCDatabase = LoadTranslationDatabase(translationDLCDatbaseFilename, true);
             glyphDatabase = LoadGlyphDatabase(glyphDatabaseFilename);
             reverseGlyphDatabase = BuildReverseGlyphDatabase(glyphDatabase);
 
@@ -83,7 +83,7 @@ namespace psnova_texteditor
             }
         }
 
-        private Dictionary<ulong, TranslationEntry> LoadTranslationDatabase(string filename)
+        private Dictionary<ulong, TranslationEntry> LoadTranslationDatabase(string filename, bool IsDLC = false)
         {
             Dictionary<ulong, TranslationEntry> output = new Dictionary<ulong, TranslationEntry>();
 
@@ -99,12 +99,25 @@ namespace psnova_texteditor
 
             if (currentSelectedScript != null)
             {
-                bool hasTranslation = translationDatabase.ContainsKey(currentSelectedId);
-                if (hasTranslation)
+                if (IsDLC == false)
                 {
-                    skipTextChanged = true;
-                    TextEditor.Text = translationDatabase[currentSelectedId].Text;
+                    bool hasTranslation = translationDatabase.ContainsKey(currentSelectedId);
+                    if (hasTranslation)
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = translationDatabase[currentSelectedId].Text;
+                    }
                 }
+                else
+                {
+                    bool hasTranslation = translationDLCDatabase.ContainsKey(currentSelectedId);
+                    if (hasTranslation)
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = translationDLCDatabase[currentSelectedId].Text;
+                    }
+                }
+
             }
 
             return output;
@@ -127,9 +140,17 @@ namespace psnova_texteditor
             return output;
         }
 
-        private void SaveTranslationDatabase(string filename)
+        private void SaveTranslationDatabase(string filename, bool IsDLC = false)
         {
+            if (IsDLC == false)
+            {
                 File.WriteAllText(filename, JsonConvert.SerializeObject(translationDatabase, Formatting.Indented));
+            }
+            else
+            {
+                File.WriteAllText(filename, JsonConvert.SerializeObject(translationDLCDatabase, Formatting.Indented));
+            }
+            
         }
 
         private void SaveGlyphDatabase(string filename)
@@ -156,7 +177,16 @@ namespace psnova_texteditor
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            SaveTranslationDatabase(translationDatbaseFilename);
+            if (ToggleScriptMode.Content.ToString().Contains("DLC"))
+            {
+                // Save JSON translation script
+                SaveTranslationDatabase(translationDatbaseFilename);
+            }
+            else
+            {
+                // Save JSON translation script
+                SaveTranslationDatabase(translationDLCDatbaseFilename);
+            }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -183,7 +213,7 @@ namespace psnova_texteditor
             else
             {
                 // Reload JSON translation script
-                LoadTranslationDatabase(translationDLCDatbaseFilename);
+                LoadTranslationDatabase(translationDLCDatbaseFilename, true);
             }
         }
         
@@ -265,20 +295,41 @@ namespace psnova_texteditor
                 Preview.MaxHeight = outputImage.Height;
 
                 currentSelectedId = id;
-                bool hasTranslation = translationDatabase.ContainsKey(currentSelectedId);
-                if (hasTranslation && !(!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text)))
+                if (ToggleScriptMode.Content.ToString().Contains("DLC"))
                 {
-                    skipTextChanged = true;
-                    TextEditor.Text = translationDatabase[currentSelectedId].Text;
-                }
-                else if ((!hasTranslation || (!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text))) && (hasTranslation && outputText != null))
-                {
-                    TextEditor.Text = outputText;
+                    bool hasTranslation = translationDatabase.ContainsKey(currentSelectedId);
+                    if (hasTranslation && !(!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text)))
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = translationDatabase[currentSelectedId].Text;
+                    }
+                    else if ((!hasTranslation || (!translationDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDatabase[currentSelectedId].Text))) && (hasTranslation && outputText != null))
+                    {
+                        TextEditor.Text = outputText;
+                    }
+                    else
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = "";
+                    }
                 }
                 else
                 {
-                    skipTextChanged = true;
-                    TextEditor.Text = "";
+                    bool hasTranslation = translationDLCDatabase.ContainsKey(currentSelectedId);
+                    if (hasTranslation && !(!translationDLCDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDLCDatabase[currentSelectedId].Text)))
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = translationDLCDatabase[currentSelectedId].Text;
+                    }
+                    else if ((!hasTranslation || (!translationDLCDatabase[currentSelectedId].Enabled && String.IsNullOrWhiteSpace(translationDLCDatabase[currentSelectedId].Text))) && (hasTranslation && outputText != null))
+                    {
+                        TextEditor.Text = outputText;
+                    }
+                    else
+                    {
+                        skipTextChanged = true;
+                        TextEditor.Text = "";
+                    }
                 }
 
             }
@@ -298,16 +349,30 @@ namespace psnova_texteditor
                 skipTextChanged = false;
                 return;
             }
-
-            // Update translation data
-            if(!translationDatabase.ContainsKey(currentSelectedId))
+            if (ToggleScriptMode.Content.ToString().Contains("DLC"))
             {
-                translationDatabase[currentSelectedId] = new TranslationEntry();
-            }
+                // Update translation data
+                if (!translationDatabase.ContainsKey(currentSelectedId))
+                {
+                    translationDatabase[currentSelectedId] = new TranslationEntry();
+                }
 
-            //translationDatabase[currentSelectedId].Id = currentSelectedId;
-            //translationDatabase[currentSelectedId].Filename = currentSelectedScript;
-            translationDatabase[currentSelectedId].Text = TextEditor.Text;
+                //translationDatabase[currentSelectedId].Id = currentSelectedId;
+                //translationDatabase[currentSelectedId].Filename = currentSelectedScript;
+                translationDatabase[currentSelectedId].Text = TextEditor.Text;
+            }
+            else
+            {
+                // Update translation data
+                if (!translationDLCDatabase.ContainsKey(currentSelectedId))
+                {
+                    translationDLCDatabase[currentSelectedId] = new TranslationEntry();
+                }
+
+                //translationDatabase[currentSelectedId].Id = currentSelectedId;
+                //translationDatabase[currentSelectedId].Filename = currentSelectedScript;
+                translationDLCDatabase[currentSelectedId].Text = TextEditor.Text;
+            }
         }
 
         private void TextEditor_KeyDown(object sender, RoutedEventArgs e)
@@ -827,6 +892,9 @@ namespace psnova_texteditor
 
         private void ToggleScriptMode_Click(object sender, RoutedEventArgs e)
         {
+            translationDatabase = LoadTranslationDatabase(translationDatbaseFilename);
+            translationDLCDatabase = LoadTranslationDatabase(translationDLCDatbaseFilename, true);
+
             var scriptsFolder = "scripts";
             var DLCFolder = "scripts_dlc";
 

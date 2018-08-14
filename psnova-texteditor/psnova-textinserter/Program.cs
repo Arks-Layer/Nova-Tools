@@ -34,39 +34,90 @@ namespace psnova_textinserter
     {
         const string charmapDatabaseFilename = "glyphs.json";
         const string translationDatabaseFilename = "translations.json";
+        const string translationDLCDatabaseFilename = "translations_dlc.json";
 
         static Dictionary<string, Dictionary<string, ushort>> charmapReverse;
 
         static Dictionary<ulong, TranslationEntry> translationDatabase = new Dictionary<ulong, TranslationEntry>();
+        static Dictionary<ulong, TranslationEntry> translationDLCDatabase = new Dictionary<ulong, TranslationEntry>();
 
         static void Main(string[] args)
         {
-            LoadCharacterMapping();
-            LoadTranslationDatabase(translationDatabaseFilename);
-
-            foreach (var entry in translationDatabase)
+            if (args.Count() == 0)
             {
-                if (entry.Value.Enabled)
+                if(File.Exists(translationDatabaseFilename) == false)
                 {
-                    string filename = String.Format("msg_{0}.rmd", entry.Key);
-                    string baseFilename = null;
+                    Console.WriteLine("Couldn't find {0}!", translationDatabaseFilename);
+                    Console.ReadLine();
+                    return;
+                }
+                LoadCharacterMapping();
+                LoadTranslationDatabase(translationDatabaseFilename);
 
-                    Console.WriteLine("Inserting {0}...", filename);
+                foreach (var entry in translationDatabase)
+                {
+                    if (entry.Value.Enabled)
+                    {
+                        string filename = String.Format("msg_{0}.rmd", entry.Key);
+                        string baseFilename = null;
 
-                    if(!String.IsNullOrWhiteSpace(entry.Value.Base))
-                        baseFilename = String.Format("msg_{0}.rmd", entry.Value.Base);
+                        Console.WriteLine("Inserting {0}...", filename);
+
+                        if (!String.IsNullOrWhiteSpace(entry.Value.Base))
+                            baseFilename = String.Format("msg_{0}.rmd", entry.Value.Base);
 
 
-                    var data = TranslateString(String.Format("msg_{0}", entry.Key), entry.Value.Text);
-                    InsertTranslation(filename, entry.Key, data, baseFilename);
+                        var data = TranslateString(String.Format("msg_{0}", entry.Key), entry.Value.Text);
+                        InsertTranslation(filename, entry.Key, data, baseFilename);
+                    }
+                }
+            }
+            else if(args[0] == "-dlc")
+            {
+                if (File.Exists(translationDLCDatabaseFilename) == false)
+                {
+                    Console.WriteLine("Couldn't find {0}!", translationDLCDatabaseFilename);
+                    Console.ReadLine();
+                    return;
+                }
+                LoadCharacterMapping();
+                LoadTranslationDatabase(translationDLCDatabaseFilename, true);
+
+                foreach (var entry in translationDLCDatabase)
+                {
+                    if (entry.Value.Enabled)
+                    {
+                        string filename = String.Format("msg_{0}.rmd", entry.Key);
+                        string baseFilename = null;
+
+                        Console.WriteLine("Inserting {0}...", filename);
+
+                        if (!String.IsNullOrWhiteSpace(entry.Value.Base))
+                            baseFilename = String.Format("msg_{0}.rmd", entry.Value.Base);
+
+
+                        var data = TranslateString(String.Format("msg_{0}", entry.Key), entry.Value.Text);
+                        InsertTranslation(filename, entry.Key, data, baseFilename, true);
+                    }
                 }
             }
         }
 
-        static private void InsertTranslation(string filename, ulong id, byte[] text, string baseFilename = null)
+        static private void InsertTranslation(string filename, ulong id, byte[] text, string baseFilename = null, bool IsDLC = false)
         {
-            const string sourceDirectory = "scripts";
-            const string outputDirectory = "output";
+            string sourceDirectory;
+            string outputDirectory;
+
+            if (IsDLC == true)
+            {
+                sourceDirectory = "scripts_dlc";
+                outputDirectory = "output_dlc";
+            }
+            else
+            {
+                sourceDirectory = "scripts";
+                outputDirectory = "output";
+            }
 
             if (!Directory.Exists(sourceDirectory))
             {
@@ -262,7 +313,7 @@ namespace psnova_textinserter
             return output.ToArray();
         }
 
-        static private void LoadTranslationDatabase(string filename)
+        static private void LoadTranslationDatabase(string filename, bool IsDLC = false)
         {
             if (File.Exists(filename))
             {
@@ -270,16 +321,37 @@ namespace psnova_textinserter
 
                 if (String.IsNullOrWhiteSpace(data))
                 {
-                    translationDatabase = new Dictionary<ulong, TranslationEntry>();
+                    if (IsDLC == false)
+                    {
+                        translationDatabase = new Dictionary<ulong, TranslationEntry>();
+                    }
+                    else
+                    {
+                        translationDLCDatabase = new Dictionary<ulong, TranslationEntry>();
+                    }
                 }
                 else
                 {
-                    translationDatabase = JsonConvert.DeserializeObject<Dictionary<ulong, TranslationEntry>>(data);
+                    if (IsDLC == false)
+                    {
+                        translationDatabase = JsonConvert.DeserializeObject<Dictionary<ulong, TranslationEntry>>(data);
+                    }
+                    else
+                    {
+                        translationDLCDatabase = JsonConvert.DeserializeObject<Dictionary<ulong, TranslationEntry>>(data);
+                    }
                 }
             }
             else
             {
-                translationDatabase = new Dictionary<ulong, TranslationEntry>();
+                if (IsDLC == false)
+                {
+                    translationDatabase = new Dictionary<ulong, TranslationEntry>();
+                }
+                else
+                {
+                    translationDLCDatabase = new Dictionary<ulong, TranslationEntry>();
+                }
             }
         }
 
