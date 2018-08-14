@@ -23,15 +23,16 @@
                     <Button Content="Reload Database" Click="ReloadDatabase_Click" IsEnabled="True" />
                 </ToolBar>
                 <ToolBar>
-                    <Button Content="Dump Scripts" Click="DumpScripts_Click" IsEnabled="True" />
+                    <Button x:Name="DumpScripts" Content="Dump Scripts" Click="DumpScripts_Click" IsEnabled="True" />
                 </ToolBar>
                 <ToolBar>
-                    <Button Content="Dump Glyphs" Click="DumpGlyphs_Click" IsEnabled="True" />
+                    <Button x:Name="DumpGlyphs" Content="Dump Glyphs" Click="DumpGlyphs_Click" IsEnabled="True" />
                 </ToolBar>
                 <ToolBar>
-                    <Button Content="Dump Text" Click="DumpText_Click" IsEnabled="True" />
+                    <Button x:Name="DumpText" Content="Dump Text" Click="DumpText_Click" IsEnabled="True" />
                 </ToolBar>
             </ToolBarTray>
+            <Button x:Name="ToggleScriptMode" Content="Switch to DLC" HorizontalAlignment="Left" Height="27" Margin="471,0,0,0" VerticalAlignment="Top" Width="130" Click="ToggleScriptMode_Click"/>
         </Grid>
 
         <Grid Grid.Row="1">
@@ -50,37 +51,40 @@
                     <RowDefinition Height="274*"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,-157,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="200*"/>
                     </Grid.RowDefinitions>
                     <Label Content="Strings" HorizontalAlignment="Center"/>
-                    <ListBox Grid.Row="1" x:Name="StringList" Margin="1" SelectionChanged="StringList_SelectionChanged" IsSynchronizedWithCurrentItem="True" Grid.ColumnSpan="2" SelectionMode="Single" />
+                    <ListBox Grid.Row="1" x:Name="StringList" Margin="1,1,0,1" SelectionChanged="StringList_SelectionChanged" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" />
                 </Grid>
 
-                <Grid Grid.Row="1" Grid.ColumnSpan="2">
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,-157,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
                         <RowDefinition Height="400*"/>
                     </Grid.RowDefinitions>
                     <Label Content="Scripts" HorizontalAlignment="Center" />
-                    <ListBox Grid.Row="1"  x:Name="ScriptList" Margin="1" SelectionChanged="ScriptList_SelectionChanged" IsSynchronizedWithCurrentItem="True" Grid.ColumnSpan="2" SelectionMode="Single" />
+                    <ListBox Grid.Row="1"  x:Name="ScriptList" Margin="1,1,0,1" SelectionChanged="ScriptList_SelectionChanged" IsSynchronizedWithCurrentItem="True" SelectionMode="Single" />
                 </Grid>
             </Grid>
 
-            <Grid Grid.Column="1">
+            <Grid Grid.Column="1" Margin="10,0,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="450*"/>
-                    <RowDefinition Height="200*"/>
-                    <RowDefinition Height="40*"/>
+                    <RowDefinition Height="45*"/>
+                    <RowDefinition Height="20*"/>
+                    <RowDefinition Height="4*"/>
                 </Grid.RowDefinitions>
 
-                <Border Background="Black" x:Name="DisplayBorder">
+                <Border Background="Black" x:Name="DisplayBorder" Margin="148,0,0,0">
                     <Image x:Name="Preview" Grid.Row="0" Margin="1" HorizontalAlignment="Center"/>
                 </Border>
-                <TextBox x:Name="TextEditor" Grid.Row="1" Margin="1" AcceptsReturn="True" AcceptsTab="True" BorderBrush="#FF828790" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="TextEditor_TextChanged" SelectionChanged="TextEditor_KeyDown" SpellCheck.IsEnabled="True" />
-                <Button x:Name="ToggleInsertion" Grid.Row="2" Click="ToggleInsertion_Click">Mark for Insertion</Button>
+                <TextBox x:Name="TextEditor" Grid.Row="1" Margin="148,1,1,1" AcceptsReturn="True" AcceptsTab="True" BorderBrush="#FF828790" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" TextChanged="TextEditor_TextChanged" SelectionChanged="TextEditor_KeyDown" SpellCheck.IsEnabled="True" />
+                <Button x:Name="ToggleInsertion" Grid.Row="2" Click="ToggleInsertion_Click" Margin="148,0,0,0">Mark for Insertion</Button>
             </Grid>
 
         </Grid>
