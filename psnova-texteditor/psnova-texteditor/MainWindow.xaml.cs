@@ -185,7 +185,7 @@ namespace psnova_texteditor
             else
             {
                 // Save JSON translation script
-                SaveTranslationDatabase(translationDLCDatbaseFilename);
+                SaveTranslationDatabase(translationDLCDatbaseFilename,true);
             }
         }
 
@@ -199,7 +199,7 @@ namespace psnova_texteditor
             else
             {
                 // Save JSON translation script
-                SaveTranslationDatabase(translationDLCDatbaseFilename);
+                SaveTranslationDatabase(translationDLCDatbaseFilename, true);
             }
         }
 
