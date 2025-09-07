@@ -15,6 +15,8 @@ x64/
 build/
 [Bb]in/
 [Oo]bj/
+.vs/
+packages/
 
 # Enable "build/" folder in the NuGet Packages folder since NuGet packages use it for MSBuild targets
 !packages/*/build/
@@ -159,3 +161,4 @@ $RECYCLE.BIN/
 /.vs
 /packages
 /Scratchpad
+/NovaParse/.vs/NovaParse/v17
